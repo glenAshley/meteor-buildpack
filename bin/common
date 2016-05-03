@@ -1,0 +1,6 @@
+BUILD_DIR=$1
+CACHE_DIR=$2
+
+if [ ! -d "$BUILD_DIR/.meteor" ] && [ -d "$BUILD_DIR/app/.meteor" ]; then
+  BUILD_DIR="$BUILD_DIR/app/"
+fi

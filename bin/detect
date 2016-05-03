@@ -1,0 +1,11 @@
+#!/bin/bash
+set -eo pipefail
+
+DIR="$(cd "$(dirname "$0")" && pwd)"
+source $DIR/common
+
+if [ -f $BUILD_DIR/.meteor/release ]; then
+  echo "Meteor" && exit 0
+else
+  echo "no" && exit 1
+fi
