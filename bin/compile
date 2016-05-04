@@ -56,7 +56,7 @@ if [ ! -d "$APP_SOURCE_DIR/.meteor" ]; then
   exit 1
 fi
 
-METEOR_DIR="$BUILDPACK_DIR/meteor"
+METEOR_DIR="/tmp/cache/meteor"
 METEOR_PRETTY_OUTPUT=0
 COMPILE_DIR_SUFFIX=".meteor/heroku_build"
 COMPILE_DIR="$APP_CHECKOUT_DIR"/"$COMPILE_DIR_SUFFIX"
@@ -109,7 +109,7 @@ mkdir -p $BUNDLE_DEST
 
 echo "-----> Building Meteor with ROOT_URL: $ROOT_URL"
 HOME=$METEOR_DIR $METEOR build --server $ROOT_URL --directory $BUNDLE_DEST
-cp $BUNDLE_DEST/bundle "$COMPILE_DIR/app"
+cp -fr $BUNDLE_DEST/bundle "$COMPILE_DIR/app"
 
 # If we use npm, run npm install.
 if [ -e "$COMPILE_DIR"/app/programs/server/package.json ]; then
