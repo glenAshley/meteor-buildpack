@@ -1,8 +1,11 @@
 #!/bin/bash
 set -eo pipefail
 
-DIR="$(cd "$(dirname "$0")" && pwd)"
-source $DIR/common
+BUILD_DIR=$1
+
+if [ ! -d "$BUILD_DIR/.meteor" ] && [ -d "$BUILD_DIR/app/.meteor" ]; then
+  BUILD_DIR="$BUILD_DIR/app/"
+fi
 
 if [ -f $BUILD_DIR/.meteor/release ]; then
   echo "Meteor" && exit 0
