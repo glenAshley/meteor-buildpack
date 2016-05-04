@@ -57,6 +57,7 @@ if [ ! -d "$APP_SOURCE_DIR/.meteor" ]; then
 fi
 
 METEOR_DIR="/tmp/cache/meteor"
+METEOR="$METEOR_DIR/.meteor/meteor"
 METEOR_PRETTY_OUTPUT=0
 COMPILE_DIR_SUFFIX=".meteor/heroku_build"
 COMPILE_DIR="$APP_CHECKOUT_DIR"/"$COMPILE_DIR_SUFFIX"
@@ -76,13 +77,12 @@ export npm_config_prefix="$COMPILE_DIR"
 export CPATH="$COMPILE_DIR"/include
 export CPPPATH="$CPATH"
 
-if [ -d "$METEOR_DIR/.meteor" ] ; then
+if [ -f "$METEOR" ] ; then
   echo "-----> Meteor already installed"
 else
   echo "-----> Installing Meteor"
   curl -sS https://install.meteor.com | HOME="$METEOR_DIR" /bin/sh
 
-  METEOR="$METEOR_DIR/.meteor/meteor"
   CUR_RELEASE=`HOME=$METEOR_DIR $METEOR --version | sed -e 's/Meteor /METEOR@/'`
   APP_RELEASE=`cat "$APP_SOURCE_DIR/.meteor/release"`
 
