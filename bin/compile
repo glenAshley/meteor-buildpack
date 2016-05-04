@@ -76,7 +76,7 @@ export npm_config_prefix="$COMPILE_DIR"
 export CPATH="$COMPILE_DIR"/include
 export CPPPATH="$CPATH"
 
-if [ -f "$METEOR_DIR/.meteor" ] ; then
+if [ -d "$METEOR_DIR/.meteor" ] ; then
   echo "-----> Meteor already installed"
 else
   echo "-----> Installing Meteor"
