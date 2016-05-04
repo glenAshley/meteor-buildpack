@@ -38,10 +38,6 @@ BUILDPACK_DIR=$(cd -P -- "$(dirname -- "$0")" && cd .. && pwd -P)
 # Get the directory our app is checked out in (the "BUILD_DIR"), passed by Heroku
 APP_CHECKOUT_DIR=$1
 
-#
-# Find the meteor app ($APP_SOURCE_DIR).
-#
-
 # Set meteor app dir's location to the root of the git repo, plus the value of
 # METEOR_APP_DIR (which defaults empty).  If you put the meteor app in src/ or
 # some other subdirectory, define METEOR_APP_DIR.
@@ -60,19 +56,13 @@ if [ ! -d "$APP_SOURCE_DIR/.meteor" ]; then
   exit 1
 fi
 
-# Where we will install meteor. Has to be outside the APP_CHECKOUT_DIR.
-METEOR_DIR=`mktemp -d "$BUILDPACK_DIR"/meteor-XXXX`
-# Where we'll put things we compile.
+METEOR_DIR="$BUILDPACK_DIR/meteor"
+METEOR_PRETTY_OUTPUT=0
 COMPILE_DIR_SUFFIX=".meteor/heroku_build"
 COMPILE_DIR="$APP_CHECKOUT_DIR"/"$COMPILE_DIR_SUFFIX"
-# Try to minimize meteor's printing
-METEOR_PRETTY_OUTPUT=0
-
-# Create directories as needed.
-mkdir -p "$APP_CHECKOUT_DIR" "$METEOR_DIR" "$COMPILE_DIR"
-
-# Update the path so we get npm, etc.
 PATH="$METEOR_DIR/.meteor:$COMPILE_DIR/bin:$PATH"
+
+mkdir -p "$APP_CHECKOUT_DIR" "$METEOR_DIR" "$COMPILE_DIR"
 
 #
 # Install node
@@ -86,27 +76,26 @@ export npm_config_prefix="$COMPILE_DIR"
 export CPATH="$COMPILE_DIR"/include
 export CPPPATH="$CPATH"
 
-#
-# Install meteor
-#
-echo "-----> Installing meteor"
-curl -sS https://install.meteor.com | HOME="$METEOR_DIR" /bin/sh
-METEOR="$METEOR_DIR/.meteor/meteor" # The meteor binary.
+if [ -f "$METEOR_DIR/.meteor" ] ; then
+  echo "-----> Meteor already installed"
+else
+  echo "-----> Installing Meteor"
+  curl -sS https://install.meteor.com | HOME="$METEOR_DIR" /bin/sh
 
-CUR_RELEASE=`HOME=$METEOR_DIR $METEOR --version | sed -e 's/Meteor /METEOR@/'`
-APP_RELEASE=`cat "$APP_SOURCE_DIR/.meteor/release"`
-if test "$CUR_RELEASE" != "$APP_RELEASE" ; then
-  # Sort CUR_RELEASE and APP_RELEASE and find the oldest
-  OLDER_RELEASE=`echo "$CUR_RELEASE\n$APP_RELEASE" | sort --version-sort | head -n1`
-  if [ "$CUR_RELEASE" = "$OLDER_RELEASE" ]; then
-    echo "-----> Upgrading meteor to $APP_RELEASE"
-    HOME=$METEOR_DIR $METEOR update --release $APP_RELEASE
+  METEOR="$METEOR_DIR/.meteor/meteor"
+  CUR_RELEASE=`HOME=$METEOR_DIR $METEOR --version | sed -e 's/Meteor /METEOR@/'`
+  APP_RELEASE=`cat "$APP_SOURCE_DIR/.meteor/release"`
+
+  if test "$CUR_RELEASE" != "$APP_RELEASE" ; then
+    # Sort CUR_RELEASE and APP_RELEASE and find the oldest
+    OLDER_RELEASE=`echo "$CUR_RELEASE\n$APP_RELEASE" | sort --version-sort | head -n1`
+    if [ "$CUR_RELEASE" = "$OLDER_RELEASE" ]; then
+      echo "-----> Upgrading meteor to $APP_RELEASE"
+      HOME=$METEOR_DIR $METEOR update --release $APP_RELEASE
+    fi
   fi
 fi
 
-#
-# Build the meteor app!
-#
 echo "-----> Bundling bundle"
 cd $APP_SOURCE_DIR
 
@@ -114,13 +103,13 @@ cd $APP_SOURCE_DIR
 if [ -e "$APP_SOURCE_DIR"/package.json ]; then
   npm install
 fi
-# Now on to bundling. Don't put the bundle in $APP_CHECKOUT_DIR, or it will
-# recurse, trying to bundle up its own bundling.
-BUNDLE_DEST=`mktemp -d "$BUILDPACK_DIR/build-XXXX"`
+
+BUNDLE_DEST=/tmp/cache/build
+mkdir -p $BUNDLE_DEST
+
 echo "-----> Building Meteor with ROOT_URL: $ROOT_URL"
 HOME=$METEOR_DIR $METEOR build --server $ROOT_URL --directory $BUNDLE_DEST
 mv $BUNDLE_DEST/bundle "$COMPILE_DIR/app"
-rmdir $BUNDLE_DEST
 
 # If we use npm, run npm install.
 if [ -e "$COMPILE_DIR"/app/programs/server/package.json ]; then
@@ -138,14 +127,3 @@ cat > "$APP_CHECKOUT_DIR"/.profile.d/path.sh <<EOF
   export PATH=\$HOME/$COMPILE_DIR_SUFFIX/bin:\$PATH
   export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$HOME/$COMPILE_DIR_SUFFIX/lib
 EOF
-
-#
-# Extras
-#
-
-# source scripts in 'extra' dir, if any.  Create them for custom stuff like
-# binary dependencies, additional environment settings, etc.
-echo "-----> Running extras"
-for file in `ls "$BUILDPACK_DIR"/extra | sort`; do
-  . "$BUILDPACK_DIR"/extra/$file
-done
