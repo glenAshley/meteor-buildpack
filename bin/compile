@@ -109,7 +109,7 @@ mkdir -p $BUNDLE_DEST
 
 echo "-----> Building Meteor with ROOT_URL: $ROOT_URL"
 HOME=$METEOR_DIR $METEOR build --server $ROOT_URL --directory $BUNDLE_DEST
-mv $BUNDLE_DEST/bundle "$COMPILE_DIR/app"
+cp $BUNDLE_DEST/bundle "$COMPILE_DIR/app"
 
 # If we use npm, run npm install.
 if [ -e "$COMPILE_DIR"/app/programs/server/package.json ]; then
