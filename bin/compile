@@ -75,8 +75,6 @@ curl -sS $NODE_URL -o - | tar -zxf - -C $COMPILE_DIR --strip 1
 export npm_config_prefix="$COMPILE_DIR"
 export CPATH="$COMPILE_DIR"/include
 export CPPPATH="$CPATH"
-export METEOR_PRETTY_OUTPUT=0
-export METEOR_PROFILE=0
 
 if [ -f "$METEOR" ] ; then
   echo "-----> Meteor already installed"
