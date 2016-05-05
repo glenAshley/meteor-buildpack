@@ -1,11 +1,5 @@
 #!/bin/sh
 
-cat <<-YAML
----
-default_process_types:
-  web: MONGO_URL=$MONGO_URL ROOT_URL=$ROOT_URL vendor/node/bin/node deploy/bundle/main.js
-YAML
-
 cat <<EOF
 default_process_types:
   web: .meteor/heroku_build/bin/node .meteor/heroku_build/app/main.js
