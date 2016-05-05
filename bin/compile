@@ -105,9 +105,6 @@ fi
 
 if [ -n "${BUILDPACK_PRELAUNCH_METEOR+1}" ]; then
   echo "-----> BUILDPACK_PRELAUNCH_METEOR: Pre-launching meteor to build packages assets"
-  # Remove the Android platform because it fails due to the Android tools not
-  # being installed, but leave the iOS platform because it's ignored.
-  HOME=$METEOR_DIR $METEOR remove-platform android || true
   HOME=$METEOR_DIR timeout -s9 60 $METEOR --settings settings.json || true
 fi
 
@@ -115,7 +112,7 @@ BUNDLE_DEST=/tmp/cache/build
 mkdir -p $BUNDLE_DEST
 
 echo "-----> Building Meteor with ROOT_URL: $ROOT_URL"
-HOME=$METEOR_DIR $METEOR build --architecture=os.linux.x86_64 --server=$ROOT_URL --directory $BUNDLE_DEST
+HOME=$METEOR_DIR $METEOR build --architecture=os.linux.x86_64 --server-only --server=$ROOT_URL --directory $BUNDLE_DEST
 cp -fr $BUNDLE_DEST/bundle "$COMPILE_DIR/app"
 
 # If we use npm, run npm install.
