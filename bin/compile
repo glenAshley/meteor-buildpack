@@ -58,8 +58,6 @@ fi
 
 METEOR_DIR="/tmp/cache/meteor"
 METEOR="$METEOR_DIR/.meteor/meteor"
-METEOR_PRETTY_OUTPUT=1
-METEOR_PROFILE=1
 COMPILE_DIR_SUFFIX=".meteor/heroku_build"
 COMPILE_DIR="$APP_CHECKOUT_DIR"/"$COMPILE_DIR_SUFFIX"
 PATH="$METEOR_DIR/.meteor:$COMPILE_DIR/bin:$PATH"
@@ -77,6 +75,8 @@ curl -sS $NODE_URL -o - | tar -zxf - -C $COMPILE_DIR --strip 1
 export npm_config_prefix="$COMPILE_DIR"
 export CPATH="$COMPILE_DIR"/include
 export CPPPATH="$CPATH"
+export METEOR_PRETTY_OUTPUT=1
+export METEOR_PROFILE=1
 
 if [ -f "$METEOR" ] ; then
   echo "-----> Meteor already installed"
