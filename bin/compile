@@ -116,7 +116,7 @@ BUNDLE_DEST=/tmp/cache/build
 mkdir -p $BUNDLE_DEST
 
 echo "-----> Building Meteor with ROOT_URL: $ROOT_URL"
-HOME=$METEOR_DIR $METEOR build --server $ROOT_URL --directory $BUNDLE_DEST
+HOME=$METEOR_DIR $METEOR build --architecture=os.linux.x86_64 --server=$ROOT_URL --directory=$BUNDLE_DEST
 cp -fr $BUNDLE_DEST/bundle "$COMPILE_DIR/app"
 
 # If we use npm, run npm install.
