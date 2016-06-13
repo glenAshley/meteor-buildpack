@@ -56,7 +56,7 @@ if [ ! -d "$APP_SOURCE_DIR/.meteor" ]; then
   exit 1
 fi
 
-METEOR_DIR="/tmp/cache/meteor"
+METEOR_DIR="/home/dokku/.cache/meteor"
 METEOR="$METEOR_DIR/.meteor/meteor"
 COMPILE_DIR_SUFFIX=".meteor/heroku_build"
 COMPILE_DIR="$APP_CHECKOUT_DIR"/"$COMPILE_DIR_SUFFIX"
@@ -108,7 +108,7 @@ if [ -n "${BUILDPACK_PRELAUNCH_METEOR+1}" ]; then
   HOME=$METEOR_DIR timeout -s9 60 $METEOR --settings settings.json || true
 fi
 
-BUNDLE_DEST=/tmp/cache/build
+BUNDLE_DEST=/home/dokku/.cache/build
 mkdir -p $BUNDLE_DEST
 
 echo "-----> Building Meteor with ROOT_URL: $ROOT_URL"

@@ -19,15 +19,15 @@ dokku config:set my-app BUILDPACK_URL=https://github.com/healthcareblocks/meteor
 ## Dokku-Related Notes
 
 ### Caching
-The Dokku default of /cache (inside the container) is not leveraged by the various Meteor buildpacks floating around. This version will use Herokuish's default of /tmp/cache. To mount to an external host volume, you can do something like this:
+The Dokku default of /cache (inside the container) is not leveraged by the various Meteor buildpacks floating around. This version will use Dokku's default of /home/dokku/.cache. To mount to an external host volume, you can do something like this:
 ```
 mkdir -p /data/my-app-name/cache
 chown -R www-data:www-data /data/my-app-name/cache
 chmod -R 0777 /data/my-app-name/cache
-dokku docker-options:add my-app-name build '-e USER=www-data -v /data/my-app-name/cache:/tmp/cache'
+dokku docker-options:add my-app-name build '-e USER=www-data -v /data/my-app-name/cache:/home/dokku/.cache'
 ```
 
-One advantage is that Meteor is only installed (to /tmp/cache/meteor) during the first deployment, shaving about 15-20 seconds from subsequent deploys.
+One advantage is that Meteor is only installed (to /home/dokku/.cache/meteor) during the first deployment, shaving about 15-20 seconds from subsequent deploys.
 
 ### Prevent the Docker build container from misbehaving
 ```
